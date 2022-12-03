@@ -1,0 +1,4 @@
+(executable
+ (public_name aoc2022_ocaml)
+ (name main)
+ (libraries aoc2022_ocaml base stdio))
