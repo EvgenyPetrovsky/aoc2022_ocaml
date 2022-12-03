@@ -44,7 +44,8 @@ let part1 (Input i : input) : answer =
   |> List.fold ~init:0 ~f:(+)
   |> (fun x -> Answer x)
 
-let find_item_in_many (items: item list list) : item =
+let find_item_in_many_rucksacks (rs: rucksack list) : item =
+  let items = List.map rs ~f:(fun {one; two} -> List.append one two) in
   let (hd, tl) = (List.hd_exn items, List.tl_exn items) in
   let common_items this that =
     List.filter this ~f:(fun x -> List.exists that ~f:(Char.equal x))
@@ -57,9 +58,8 @@ let find_item_in_many (items: item list list) : item =
 (* Solution for part 1 *)
 let part2 (Input i : input) : answer =
   i
-  |> List.map ~f:(fun {one; two} -> List.append one two)
   |> List.chunks_of ~length:3
-  |> List.map ~f:find_item_in_many
+  |> List.map ~f:find_item_in_many_rucksacks
   |> List.map ~f:item_priority
   |> List.fold ~init:0 ~f:(+)
   |> (fun x -> Answer x)
