@@ -11,7 +11,7 @@ homepage: "https://github.com/evgenypetrovsky/aoc2022_ocaml"
 bug-reports: "https://github.com/evgenypetrovsky/aoc2022_ocaml/issues"
 depends: [
   "ocaml"
-  "dune" {>= "3.6"}
+  "dune" {>= "3.5"}
   "odoc" {with-doc}
 ]
 build: [
