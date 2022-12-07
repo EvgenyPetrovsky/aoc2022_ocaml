@@ -1,18 +1,27 @@
-open Stdio
+module D01 = Day_01
+module D02 = Day_02
+module D03 = Day_03
+module D04 = Day_04
+module D05 = Day_05
+module D06 = Day_06
+module D07 = Day_07
+
+module Today = Day_07
 
 (* this main function reads sandard input with puzzle data from file and returns standard output with answer *)
 let () =
+  let open Stdio in 
   (*let solver = Day_01 in*)
   let input_text = In_channel.input_all Stdio.stdin in
   let answer1_text = input_text
-    |> Day_06.text_to_input
-    |> Day_06.part1
-    |> Day_06.answer_to_text
+    |> Today.text_to_input
+    |> Today.part1
+    |> Today.answer_to_text
   in
   let answer2_text = input_text
-    |> Day_06.text_to_input
-    |> Day_06.part2
-    |> Day_06.answer_to_text
+    |> Today.text_to_input
+    |> Today.part2
+    |> Today.answer_to_text
   in
   printf
     "Part 1 solution is: %s;\nPart 2 solution is: %s.\n"
