@@ -5,7 +5,7 @@ exception Unexpected_case of string
 
 type move = U | D | L | R
 type pos = (int * int) 
-type rope = {head : pos ; tail : pos}
+type rope = { knots : pos list }
 
 type input = Input of move list
 type answer = Answer of int | Unknown
@@ -51,16 +51,24 @@ let move_tail ~(tail : pos) ~(head : pos) : pos =
   in
   (new_x , new_y)
 
-let move_rope ({head ; tail}: rope) (move: move) : rope =
+let move_rope ({knots}: rope) (move: move) : rope =
+  let (head, tail) = (List.hd_exn knots, List.tl_exn knots) in
   let new_head = move_head head move in 
-  let new_tail = move_tail ~tail:tail ~head:new_head in
+  let rec move_knots (knot: pos) (next_knots: pos list) : (pos list) = 
+    match next_knots with
+    | [] -> []
+    | nk::nks ->
+      let new_pos = move_tail ~tail:nk ~head:knot in 
+      new_pos :: (move_knots new_pos nks)
+  in
   (*Stdio.printf "{ head = (%d,%d) ; tail = %d,%d }\n" (fst new_head) (snd new_head) (fst new_tail) (snd new_tail);*)
-  { head = new_head ; tail = new_tail }
+  {knots = new_head :: (move_knots new_head tail)}
 
 
 (* Solution for part 1 *)
 let part1 (Input moves : input) : answer = 
-  let start = [{ head = (0,0) ; tail = (0,0) }] in
+  let num_knots = 2 in
+  let start = [{knots = List.init num_knots ~f:(fun _ -> (0,0))}] in
   let record_move acc move = (move_rope (List.hd_exn acc) move) :: acc in
   let pos_compare ((x1,y1) : int * int) ((x2,y2) : int * int) : int =
     match (x2 - x1, y2 - y1) with
@@ -69,13 +77,27 @@ let part1 (Input moves : input) : answer =
   in
   moves 
   |> List.fold ~init:start ~f:record_move
-  |> List.map ~f:(fun {tail ; _} -> tail)
+  |> List.map ~f:(fun {knots} -> List.last_exn knots)
   |> List.dedup_and_sort ~compare:pos_compare
   |> List.length
   |> (fun x -> Answer x)
 
 (* Solution for part 1 *)
-let part2 (Input _ : input) : answer = Unknown
+let part2 (Input moves : input) : answer =
+let num_knots = 10 in
+let start = [{knots = List.init num_knots ~f:(fun _ -> (0,0))}] in
+let record_move acc move = (move_rope (List.hd_exn acc) move) :: acc in
+let pos_compare ((x1,y1) : int * int) ((x2,y2) : int * int) : int =
+  match (x2 - x1, y2 - y1) with
+  | (0, dy) -> dy
+  | (dx, _) -> dx
+in
+moves 
+|> List.fold ~init:start ~f:record_move
+|> List.map ~f:(fun {knots} -> List.last_exn knots)
+|> List.dedup_and_sort ~compare:pos_compare
+|> List.length
+|> (fun x -> Answer x)
 
 let answer_to_text = function
   | Answer x -> Int.to_string x
