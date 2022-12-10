@@ -10,6 +10,7 @@ type rope = { knots : pos list }
 type input = Input of move list
 type answer = Answer of int | Unknown
 
+
 (* get one line and return the list of moves *)
 let parse_one_line (line: string) : (move list) =
   let spl = String.split line ~on:' ' in
@@ -32,6 +33,7 @@ let text_to_input (t: string) :input =
   |> List.concat
   |> (fun x -> Input x)
 
+
 (* change position of head *)
 let move_head ((x, y) : pos) (direction: move) : pos =
   match direction with
@@ -51,6 +53,7 @@ let move_tail ~(tail : pos) ~(head : pos) : pos =
   | (0,0) | (0,1) | (1,0) | (1,1) -> (xt, yt)
   (* otherwise tail moves towards head by 1 position *)
   | _ -> (xt + sign dx, yt + sign dy)
+
 
 (* move all sections of rope starting from head *)
 let move_rope ({knots}: rope) (move: move) : rope =
@@ -123,6 +126,7 @@ let part1 (Input moves : input) : answer =
   |> List.dedup_and_sort ~compare:pos_compare
   |> List.length
   |> (fun x -> Answer x)
+
 
 let answer_to_text = function
   | Answer x -> Int.to_string x

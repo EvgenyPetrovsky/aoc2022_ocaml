@@ -7,12 +7,13 @@ module D06 = Day_06
 module D07 = Day_07
 module D08 = Day_08
 module D09 = Day_09
+module D10 = Day_10
 
-module Today = Day_09
+module Today = Day_10
 
 (* this main function reads sandard input with puzzle data from file and returns standard output with answer *)
 let () =
-  let open Stdio in 
+  let open Stdio in
   (*let solver = Day_01 in*)
   let input_text = In_channel.input_all Stdio.stdin in
   let answer1_text = input_text
