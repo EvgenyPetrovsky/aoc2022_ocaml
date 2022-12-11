@@ -8,8 +8,9 @@ module D07 = Day_07
 module D08 = Day_08
 module D09 = Day_09
 module D10 = Day_10
+module D11 = Day_11
 
-module Today = Day_10
+module Today = Day_11
 
 (* this main function reads sandard input with puzzle data from file and returns standard output with answer *)
 let () =
