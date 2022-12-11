@@ -19,6 +19,9 @@ type thrown_item = { to_monkey : int ; item : int}
 type input = Input of monkey list
 type answer = Answer of int | Unknown
 
+(* Parse input functions *)
+
+(* take chunk of lines form input file and parse it into monkey type *)
 let parse_one_monkey (text:string list) : monkey =
   let parse_op (v1: string) (op: string) (v2: string) : (int -> int) =
     (fun x ->
@@ -66,16 +69,44 @@ let parse_one_monkey (text:string list) : monkey =
   in
   { id ; items ; operation ; divisible_by ; test ; if_true ; if_false ; inspected = 0 }
 
+
 let text_to_input (t: string) :input =
   t
   |> String.split_lines
+  (* break lines into subgroups divided by empty line
+     these groups contain information about monkey *)
   |> List.group ~break:(fun a _ -> String.equal a "")
   |> List.map ~f:parse_one_monkey
   |> (fun x -> Input x)
 
-let catch_item (m : monkey) (item : int) : monkey =
-  { m with items = List.append m.items [item] }
 
+(* Debug functions *)
+
+
+let debug_turn (number: int) (round: monkey list) : unit =
+  let open List in
+  let printf = Stdio.printf in
+  printf "\n---------- turn %d -----------\n" number;
+  iter round ~f:(fun m ->
+    let items = (m.items |> map ~f:Int.to_string |> String.concat ~sep:",") in
+    printf "Monkey: %d; holds items: %s; inspected items count: %d\n" m.id items m.inspected)
+
+
+let debug_round (number: int) (round: monkey list) : unit =
+  let open List in
+  let printf = Stdio.printf in
+  printf "\n---------- ROUND %d ----------\n" number;
+  iter round ~f:(fun m ->
+    let items = (m.items |> map ~f:Int.to_string |> String.concat ~sep:",") in
+    printf "Monkey: %d; holds items: %s; inspected items count: %d\n" m.id items m.inspected)
+
+
+(* solution helper functions *)
+
+
+(* Monkey inspects items
+   scores are recalculated
+   and it is decided where those items are thrown *)
 let throw_items (m:monkey) (relief_factor:int) : (thrown_item list) =
   let thrown_items = m.items
   (* increase worry level *)
@@ -87,9 +118,21 @@ let throw_items (m:monkey) (relief_factor:int) : (thrown_item list) =
   in
   thrown_items
 
+
+(* After monkey throws items they need to be redistributed
+  and numbers need to be reduced to avoid overflows *)
 let redistribute_items (current: monkey) (monkeys: monkey list) (items: thrown_item list) : monkey list =
   let open List in
+
+  (* common multiplier that can be used to
+     reduce number keeping their "divisible by" property.
+     no need to fight for least common multiplier *)
   let divisor = fold monkeys ~init:1 ~f:(fun z x -> z * x.divisible_by) in
+
+  (* update info about monkey:
+     if this is current monkey then clean up list of kept items
+     and update counter of inspected imens
+     else - add trown items towards this monkey*)
   let process_one_monkey (m: monkey) : monkey =
     let items_to_receive = filter_map items ~f:(
       fun {to_monkey ; item} -> if to_monkey = m.id then Some item else None
@@ -103,16 +146,8 @@ let redistribute_items (current: monkey) (monkeys: monkey list) (items: thrown_i
   |> map ~f:process_one_monkey
   |> map ~f:(fun m -> { m with items = map m.items ~f:(fun x -> x % divisor)})
 
-let debug_turn (number: int) (round: monkey list) : unit =
-  let open List in
-  let printf = Stdio.printf in
-  printf "\n---------- turn %d -----------\n" number;
-  iter round ~f:(fun m ->
-    let items = (m.items |> map ~f:Int.to_string |> String.concat ~sep:",") in
-    printf "Monkey: %d; holds items: %s; inspected items count: %d\n" m.id items m.inspected)
 
-
-(* solution helper functions *)
+(* walk through all monkeys and let them inspect and through items to each other *)
 let play_round (monkeys : monkey list) (relief_factor : int) : (monkey list) =
   let rec play_turn (turns: int list) (acc_state : monkey list) : (monkey list) =
     match turns with
@@ -126,14 +161,6 @@ let play_round (monkeys : monkey list) (relief_factor : int) : (monkey list) =
   in
   play_turn (List.init (List.length monkeys) ~f:(fun x -> x)) monkeys
 
-let debug_round (number: int) (round: monkey list) : unit =
-  let open List in
-  let printf = Stdio.printf in
-  printf "\n---------- ROUND %d ----------\n" number;
-  iter round ~f:(fun m ->
-    let items = (m.items |> map ~f:Int.to_string |> String.concat ~sep:",") in
-    printf "Monkey: %d; holds items: %s; inspected items count: %d\n" m.id items m.inspected)
-
 
 (* Solution for part 1 *)
 let part1 (Input i : input) : answer =
@@ -145,7 +172,8 @@ let part1 (Input i : input) : answer =
   |> List.fold ~init:1 ~f:( * )
   |> (fun x -> Answer x)
 
-(* Solution for part 1 *)
+
+(* Solution for part 2 *)
 let part2 (Input i : input) : answer =
 List.init 10000 ~f:(fun x -> x + 1)
 |> List.fold ~init:i ~f:(
@@ -157,6 +185,7 @@ List.init 10000 ~f:(fun x -> x + 1)
 |> (fun x -> List.take (List.rev x) 2)
 |> List.fold ~init:1 ~f:( * )
 |> (fun x -> Answer x)
+
 
 let answer_to_text = function
   | Answer x -> Int.to_string x
