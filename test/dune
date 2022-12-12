@@ -1,2 +1,3 @@
 (test
- (name aoc2022_ocaml))
+ (name aoc2022_ocaml)
+ (libraries base stdio))

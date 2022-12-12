@@ -14,7 +14,7 @@ let answer_to_text = function
 
 
   (* Parse input functions *)
-let text_to_input (t: string) :input =
+let text_to_input (_: string) :input =
   raise Not_implemented
 
 
