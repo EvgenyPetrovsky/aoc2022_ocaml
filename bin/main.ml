@@ -30,6 +30,6 @@ let () =
     |> Today.answer_to_text
   in
   printf
-    "Part 1 solution is: %s;\nPart 2 solution is: %s.\n"
+    "\nPart 1 solution is: %s;\nPart 2 solution is: %s.\n"
     answer1_text answer2_text
 
