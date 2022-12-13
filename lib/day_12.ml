@@ -4,6 +4,12 @@ exception Not_implemented
 
 type elevation = Start of int | End of int | Elevation of int
 type map = { heigth: int ; width: int ; elevations: elevation array }
+type rules = { 
+  map : map; 
+  if_move_is_valid : (elevation -> elevation -> bool) ; (*function that checks if new move in path is valid*)
+  if_goal_is_reached : (elevation -> bool) ; (*function that checks of move leads to goal*)
+  begin_idx : int (*beginning point on the map*)
+  }
 type input = Input of map
 type path = Path of int list (* list of map_indexes; head element = last step *)
 type shortest_path = { map_idx : int ; length_to_it : int }
@@ -77,40 +83,18 @@ let adjacent_positions (idx: int) (m_h: int) (m_w: int) : (int list) =
     idx + m_w ; (* down *)
     idx - m_w ; (* up *)
   ] |> List.filter ~f:(fun x -> x >= 0 && x < (m_w * m_h))
-let discover_new_paths ({heigth ; width ; elevations} : map) (discovered: path list) : (path list) =
+
+
+let discover_new_paths ({ map ; if_move_is_valid ; _} : rules) (discovered: path list) : (path list) =
+  let { heigth ; width ; elevations } = map in
   let add_adj (Path p: path) : (path list) =
-    let idx = (List.hd_exn p) in
-    match Array.get elevations idx with
-    | End _ -> [Path p]
-    | Start e0 | Elevation e0 ->
-      adjacent_positions idx heigth width
-      |> List.filter ~f:(fun x ->
-        match Array.get elevations x with
-        End e1 | Elevation e1 -> (e1 - e0) <= 1
-        | _ -> false)
-      |> List.map ~f:(fun x -> Path (x :: p))
+    let idx = List.hd_exn p in
+    let e0 = Array.get elevations idx in
+    adjacent_positions idx heigth width
+    |> List.filter ~f:(fun x -> let e1 = Array.get elevations x in if_move_is_valid e0 e1)
+    |> List.map ~f:(fun x -> Path (x :: p))
   in
   List.fold discovered ~init:[] ~f:(fun z x -> List.append z (add_adj x))
-
-
-(* due to non working map (why???) custom implementation of list comparison *)
-let list_compare f l1 l2 =
-  let rec iter x y =
-    match (x, y) with
-    | ([], []) -> 0
-    | (_::_, []) -> 1
-    | ([], _::_) -> -1
-    | (x::xs, y::ys) -> match (f x y) with | 0 -> iter xs ys | _ -> (f x y)
-  in
-  iter l1 l2
-
-
-(* check if any progress was made after the discovery step *)
-let any_progress_made (before: path list) (after: path list) : bool =
-  let comp_fun = fun (Path x) (Path y) -> list_compare Int.compare x y in
-  let l0 = List.dedup_and_sort before ~compare:comp_fun in
-  let l1 = List.dedup_and_sort after  ~compare:comp_fun in
-  List.equal (fun x y -> comp_fun x y = 0) l0 l1
 
 
 let filter_new_paths_and_update_shortest (nps: path list) (sps: shortest_path list) : ((path list) * (shortest_path list))=
@@ -124,21 +108,20 @@ let filter_new_paths_and_update_shortest (nps: path list) (sps: shortest_path li
   in
   iter [] nps sps
 
-let discover_shortest_paths ({elevations ; _} as map: map) : path list =
-  let start_idx_array = Array.filter_mapi elevations ~f:(fun i x -> match x with | Start _ -> Some i | _ -> None) in
-  let init_path = Path [Array.get start_idx_array 0] in
+
+let discover_shortest_paths ({map ; if_goal_is_reached ; begin_idx ; _} as rules : rules) : path list =
+  let {elevations ; _} = map in
+  let init_path = Path [begin_idx] in
   let rec iter (paths_to_goal: path list) (paths: path list) (shortest_paths: shortest_path list) : (path list) =
-    let new_paths = discover_new_paths map paths in
-    (*
-    let new_shortest_paths = List.fold new_paths ~init:shortest_paths ~f:(fun z x -> add_path_if_shortest x z) in
-    let new_paths_filtered = List.filter new_paths ~f:(fun x -> is_shortest_path x new_shortest_paths) in
-    *)
+    let new_paths = discover_new_paths rules paths in
     let (new_paths_filtered, new_shortest_paths) = filter_new_paths_and_update_shortest new_paths shortest_paths in
     let terminal_state = List.is_empty new_paths_filtered in
-    let new_paths_to_goal = List.append paths_to_goal @@ List.filter new_paths_filtered ~f:(fun (Path x) -> match Array.get elevations (List.hd_exn x) with | End _ -> true | _ -> false) in
+    let new_paths_to_goal = List.append paths_to_goal @@ List.filter new_paths_filtered ~f:(fun (Path x) -> if_goal_is_reached @@ Array.get elevations (List.hd_exn x) ) in
+    (*
     Stdio.printf "terminal state: %s\n" (Bool.to_string terminal_state);
     Stdio.printf "number of paths: %d\n" (List.length new_paths_filtered);
     List.iter new_paths_filtered ~f:(fun x -> debug_path x map);
+    *)
     if terminal_state then new_paths_to_goal else iter new_paths_to_goal new_paths_filtered new_shortest_paths
   in
   let paths = iter [] [init_path] [] in
@@ -147,13 +130,45 @@ let discover_shortest_paths ({elevations ; _} as map: map) : path list =
 
 (* Solution for part 1 *)
 let part1 (Input ({width ; heigth ; elevations} as map): input) : answer =
-  let paths = discover_shortest_paths map in
+  let if_move_is_valid : (elevation -> elevation -> bool) = 
+    fun e1 e2 -> 
+      match e1 with
+      | End _ -> false
+      | Start v1 | Elevation v1 -> 
+        match e2 with 
+        | Start _ -> false 
+        | End v2 | Elevation v2 -> v2 - v1 < 2
+  in
+  let if_goal_is_reached : (elevation -> bool) =
+    fun e -> match e with | End _ -> true | _ -> false
+  in
+  let (begin_idx, _) = Array.findi_exn elevations ~f:(fun _ x -> match x with | Start _ -> true | _ -> false) in
+  let rules = ({ map ; if_move_is_valid ; if_goal_is_reached ; begin_idx} : rules) in
+  let paths = discover_shortest_paths rules in
   paths
-  |> List.filter ~f:(fun (Path x) -> match Array.get elevations (List.hd_exn x) with | End _ -> true | _ -> false)
   |> List.map ~f:(fun (Path x) -> List.length x)
   |> List.fold ~init:(width * heigth) ~f:min
   |> (fun x -> Answer (x - 1))
 
 
 (* Solution for part 2 *)
-let part2 (Input _ : input) : answer = Unknown
+let part2 (Input ({width ; heigth ; elevations} as map) : input) : answer =
+let if_move_is_valid : (elevation -> elevation -> bool) = 
+  fun e2 e1 ->
+    match e2 with
+    | Elevation 0 | Start _ -> false
+    | End v2 | Elevation v2 -> 
+      match e1 with 
+      | End _ -> false
+      | Start v1 | Elevation v1 -> v2 - v1 < 2
+in
+let if_goal_is_reached : (elevation -> bool) =
+  fun e -> match e with | Elevation 0 | Start _ -> true | _ -> false
+in
+let (begin_idx, _) = Array.findi_exn elevations ~f:(fun _ x -> match x with | End _ -> true | _ -> false) in
+let rules = ({ map ; if_move_is_valid ; if_goal_is_reached ; begin_idx} : rules) in
+let paths = discover_shortest_paths rules in
+paths
+|> List.map ~f:(fun (Path x) -> List.length x)
+|> List.fold ~init:(width * heigth) ~f:min
+|> (fun x -> Answer (x - 1))
