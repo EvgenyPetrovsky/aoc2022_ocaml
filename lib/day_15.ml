@@ -77,11 +77,23 @@ let find_h_boudaries ~(y:int) (sensors: sensor list) : range =
   | (Some left, Some right) -> X (left, right)
   | _ -> raise Invalid_case
 
+let diff_range r1 r2 =
+  let ((a1,b1), (a2,b2)) = (r1, r2) in
+  if a2 < b1 then None
+  else if a1 <= a2 && b2 <= b1 then Some (a2, b2)
+  else if a1 <= a2 && b1 <= b2 then Some (a2, b1)
+  else if a2 <= a1 && b1 <= b2 then Some (a1, b1)
+  else if a2 <= a1 && b2 <= b1 then Some (a1, b2)
+  else None
+
+    else 
+  match (r1, r2) with
+  | (X (l1, r1), X (l1, r1) -> 
 
 (* Solution for part 1 *)
 let part1 (Input sensors : input) : answer = 
   (*let y = 2000000 in*)
-  let y = 20 in
+  let y = 10 in
   let sensor_cov_ranges = List.filter_map sensors ~f:(fun x -> sensor_h_coverage ~y:y x) in
   let global_boundaries = find_h_boudaries ~y:y sensors in
   let global_low_x_bound = range_low_boundary global_boundaries in 

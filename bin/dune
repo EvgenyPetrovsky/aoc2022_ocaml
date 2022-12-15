@@ -1,5 +1,5 @@
 (executable
  (public_name aoc2022_ocaml)
  (name main)
- (libraries aoc2022_ocaml base stdio)
+ (libraries aoc2022_ocaml base stdio str)
  (preprocess (pps ppx_jane)))
