@@ -139,13 +139,14 @@ let part1 (Input sensors : input) : answer =
 (* Solution for part 2 *)
 
 let brute_force_solution (sensors: sensor list) : int =
+  let (min_x, _) = (0, 0) in
   let (max_x, max_y) = (4_000_000, 4_000_000) in
   let sensors_distances = List.map sensors ~f:(fun { position; closest_beacon } -> (position, mht_distance position closest_beacon))
   in
-  let rec iter (x:int) (y:int) : int =
+  let rec iter (x:int) (y:int): int =
     if (y % 100_000 = 0 && x = 0) then Stdio.printf "processing y = %d\n" y;
     if y > max_y then 0
-    else if x > max_x then iter 0 (y + 1)
+    else if x > max_x then iter min_x (y + 1) 
     else
       let diff = List.fold sensors_distances ~init:(-1) ~f:(
         fun z ( position , dist ) ->
@@ -153,7 +154,7 @@ let brute_force_solution (sensors: sensor list) : int =
       )
       in
       if diff < 0 then x * max_x + y
-      else iter (x + diff) (y + (max 0 (diff - max_x)))
+      else iter (x + (max diff 1)) (y)
   in
   iter 0 0
 let part2 (Input sensors : input) : answer =
