@@ -20,7 +20,8 @@ let answer_to_text = function
 
 
 (* Parse input functions *)
-  (*
+
+let parse_one_line (line: string) : sensor =
   let re = Str.regexp {|Sensor at x=\([0-9]+\), y=\([0-9]+\): closest beacon is at x=\([0-9]+\), y=\([0-9]+\)|} in
   let x1 = Int.of_string @@ Str.replace_first re {|\1|} line in
   let y1 = Int.of_string @@ Str.replace_first re {|\2|} line in
@@ -28,8 +29,8 @@ let answer_to_text = function
   let y2 = Int.of_string @@ Str.replace_first re {|\4|} line in
 
   { position = (x1, y1) ; closest_beacon = (x2, y2) }
-  *)
 
+(*
 let parse_one_line (line: string) : sensor =
   let s_b = String.split line ~on:':' in
 
@@ -40,7 +41,7 @@ let parse_one_line (line: string) : sensor =
   let x2 = Int.of_string @@ String.chop_prefix_exn ~prefix:" x=" @@ List.nth_exn b 0 in
   let y2 = Int.of_string @@ String.chop_prefix_exn ~prefix:" y=" @@ List.nth_exn b 1 in
   { position = (x1, y1) ; closest_beacon = (x2, y2) }
-
+*)
 let text_to_input (t: string) :input =
   t |> String.split_lines |> List.map ~f:parse_one_line |> (fun x -> Input x)
 

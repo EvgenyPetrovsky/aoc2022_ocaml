@@ -1,5 +1,5 @@
 (library
  (name aoc2022_ocaml)
- (libraries base stdio)
+ (libraries base stdio str)
  (inline_tests)
  (preprocess (pps ppx_expect)))
