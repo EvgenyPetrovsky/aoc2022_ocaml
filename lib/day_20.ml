@@ -48,8 +48,8 @@ let mix_array ~(pointer: int) ~(shift_by: int) (pointers: int array) : int array
 let part1 (Input numbers : input) : answer =
   let pointers = Array.mapi numbers ~f:(fun i _ -> i) in
   let len = Array.length numbers in
-  let pointers = Array.foldi numbers ~init:pointers ~f:(fun i pointers _ ->
-    mix_array ~pointer:i ~shift_by:numbers.(i) pointers)
+  let pointers = Array.foldi numbers ~init:pointers ~f:(fun i pointers number ->
+    mix_array ~pointer:i ~shift_by:number pointers)
   in
   let new_order = Array.map pointers ~f:(fun ptr -> numbers.(ptr)) in
   let idx_0 = locate_number 0 new_order in
