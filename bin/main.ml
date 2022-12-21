@@ -18,6 +18,7 @@ module D17 = Aoc2022_ocaml.Day_17
 module D18 = Aoc2022_ocaml.Day_18
 module D19 = Aoc2022_ocaml.Day_19
 module D20 = Aoc2022_ocaml.Day_20
+module D21 = Aoc2022_ocaml.Day_21
 
 module Today = D20
 

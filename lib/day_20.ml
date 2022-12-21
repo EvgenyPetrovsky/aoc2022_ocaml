@@ -30,14 +30,17 @@ let locate_number (number:int) (array: int array) : int =
   let (idx, _) = Array.findi_exn array ~f:(fun _ x -> x = number) in
   idx
 
-let mix_array ~(pointer: int) ~(shift_by: int) (pointers: int array) : int array =
+let mix_array ~(pointer: int) ~(shift_by: int) ~(pointers: int array) : int array =
   let len = Array.length pointers in
   let offset = locate_number pointer pointers in
-  let sign = Int.compare shift_by 0 in
+  (* figure ouy why numenr of steps must be 1 less fr negative shifts *)
+  let moves = if shift_by < 0 then shift_by % len -1 else shift_by % len in
   (* remainder of division to save on unnecessary multiple rotations *)
-  for i = 0 to abs (shift_by) % len - 1 do
-    let this_idx = (i*sign + offset) % len in
-    let next_idx = (i*sign + sign + offset) % len in
+  for i = 0 to moves - 1 do
+    (* find indexes of elements that need to be swapped *)
+    let this_idx = (i + offset) % len in
+    let next_idx = (i + offset + 1) % len in
+    (* swap elements *)
     let temp = pointers.(next_idx) in
     pointers.(next_idx) <- pointers.(this_idx);
     pointers.(this_idx) <- temp
@@ -46,10 +49,10 @@ let mix_array ~(pointer: int) ~(shift_by: int) (pointers: int array) : int array
 
 (* Solution for part 1 *)
 let part1 (Input numbers : input) : answer =
-  let pointers = Array.mapi numbers ~f:(fun i _ -> i) in
   let len = Array.length numbers in
+  let pointers = Array.init len ~f:(fun i -> i) in
   let pointers = Array.foldi numbers ~init:pointers ~f:(fun i pointers number ->
-    mix_array ~pointer:i ~shift_by:number pointers)
+    mix_array ~pointer:i ~shift_by:number ~pointers:pointers)
   in
   let new_order = Array.map pointers ~f:(fun ptr -> numbers.(ptr)) in
   let idx_0 = locate_number 0 new_order in
