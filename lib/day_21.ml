@@ -66,13 +66,25 @@ let text_to_input (t: string) :input =
 
 
 (* Solution helper functions *)
-let rec evaluate (expr: expression) : int =
+let rec evaluate' (expr: expression) : int =
   match expr with
   | Literal (_, x) -> x
-  | Plus (_, l, r) -> (evaluate l) + (evaluate r)
-  | Minus (_, l, r) -> (evaluate l) - (evaluate r)
-  | Multiply (_, l, r) -> (evaluate l) * (evaluate r)
-  | Divide (_, l, r) -> (evaluate l) / (evaluate r)
+  | Plus (_, l, r) -> (evaluate' l) + (evaluate' r)
+  | Minus (_, l, r) -> (evaluate' l) - (evaluate' r)
+  | Multiply (_, l, r) -> (evaluate' l) * (evaluate' r)
+  | Divide (_, l, r) -> (evaluate' l) / (evaluate' r)
+
+let evaluate (expr: expression) : int =
+  (* evaluation has to be more precise for optimization needs of part 2 *)
+  let rec iter (expr : expression) : float =
+    match expr with
+    | Literal (_, x) -> Int.to_float x
+    | Plus (_, l, r) -> (iter l) +. (iter r)
+    | Minus (_, l, r) -> (iter l) -. (iter r)
+    | Multiply (_, l, r) -> (iter l) *. (iter r)
+    | Divide (_, l, r) -> (iter l) /. (iter r)
+  in
+  Int.of_float (iter expr)
 
 let set_humn ~(value: int) (expr: expression) : expression =
   let rec iter = function
