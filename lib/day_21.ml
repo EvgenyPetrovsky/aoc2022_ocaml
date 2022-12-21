@@ -1,5 +1,4 @@
 open Base
-open Float
 
 exception Not_implemented
 exception Invalid_case
