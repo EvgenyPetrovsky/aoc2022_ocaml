@@ -3,7 +3,7 @@ open Base
 exception Not_implemented
 
 type direction = North | East | South | West
-type x_y_coord = int * int 
+type x_y_coord = int * int
 type input = Input of x_y_coord list
 type answer = Answer of int | Unknown
 
@@ -37,38 +37,45 @@ let area_boundaries (elves: x_y_coord list) : (int * int) * (int * int) =
 (* Debug functions *)
 let print_elves_on_map (elves : x_y_coord list) : unit =
   let ((min_x, min_y), (max_x, max_y)) = area_boundaries elves in
-  let exists (x, y) = 
-    List.exists elves ~f:(fun (xe, ye) -> (xe-min_x)=x && (ye-min_y) = y) 
+  let exists (x, y) =
+    List.exists elves ~f:(fun (xe, ye) -> (xe-min_x)=x && (ye-min_y) = y)
   in
   List.init (max_y - min_y + 1) ~f:(fun y -> List.init (max_x - min_x + 1) ~f:(fun x -> if exists (x, y) then '#' else ' '))
   |> List.map ~f:String.of_char_list
-  |> List.iter ~f:(fun line -> Stdio.printf "|%s|\n" line)
+  |> List.iteri ~f:(fun i line -> Stdio.printf "%2d > |%s|\n" (i+min_y) line)
 
 
 (* Solution helper functions *)
+
+(** Compare two coordinates *)
+let c_comp ((x1,y1) : x_y_coord) ((x2,y2) : x_y_coord) : int =
+  match (compare x1 x2, compare y1 y2) with
+  | (0, y) -> y
+  | (x, _) -> x
+
+(** If elf has another elf standing in adjucent place then it needs to move*)
 let need_to_move ((x, y) : x_y_coord) (elves : x_y_coord list) : bool =
   (* function that checks whether another elf is close to elf *)
-  let close_presence (xi, yi) = 
-    (x - 1) <= xi && xi <= (x + 1) && 
-    (y - 1) <= yi && yi <= (y + 1) &&
-    x <> xi && y <> yi
+  let close_presence (xi, yi) =
+    (x - 1) <= xi && xi <= (x + 1) &&
+    (y - 1) <= yi && yi <= (y + 1)
   in
   let count_nbr_elves = List.count elves ~f:close_presence in
-  count_nbr_elves > 0
+  count_nbr_elves > 1
 
 let propose_move ((x, y) : x_y_coord) (elves : x_y_coord list) (options: direction list) : x_y_coord =
-  let no_elves_in_direction direction = 
+  let no_elves_in_direction direction =
     let direction_coordinares = match direction with
-    | North -> [(x-1, y-1); (x, y-1); (x+1, y-1)] 
-    | East -> [(x+1, y-1); (x+1, y); (x+1, y+1)] 
-    | South -> [(x-1, y+1); (x, y+1); (x+1, y+1)] 
+    | North -> [(x-1, y-1); (x, y-1); (x+1, y-1)]
+    | East -> [(x+1, y-1); (x+1, y); (x+1, y+1)]
+    | South -> [(x-1, y+1); (x, y+1); (x+1, y+1)]
     | West -> [(x-1, y-1); (x-1, y); (x-1, y+1)]
     in
-    let elves_count = 
+    let elves_count =
     List.count direction_coordinares ~f:(
       fun (xd, yd) -> List.exists elves ~f:(
         fun (xe, ye) -> xd = xe && yd = ye))
-    in 
+    in
     elves_count = 0
   in
   let move_in_direction = function
@@ -77,7 +84,7 @@ let propose_move ((x, y) : x_y_coord) (elves : x_y_coord list) (options: directi
   | South -> (x, y+1)
   | West -> (x-1, y)
   in
-  match 
+  match
     options |> List.filter_map ~f:(
       fun d -> if no_elves_in_direction d then Some d else None)
   with
@@ -85,33 +92,56 @@ let propose_move ((x, y) : x_y_coord) (elves : x_y_coord list) (options: directi
   | d::_ -> move_in_direction d
 
 let round (elves: x_y_coord list) (options: direction list) : x_y_coord list =
-  let proposals = List.map elves ~f:(fun e -> 
+  let proposals = List.map elves ~f:(fun e ->
     if need_to_move e elves then propose_move e elves options else e)
-  in 
+  in
   (* repeat it again and again because not all elves have moved *)
-  List.fold elves ~init:proposals ~f:(fun proposals' _ ->
-    List.map2_exn proposals' elves ~f:(
-      fun (x1, y1) (x0, y0) -> 
+  let rec place_elves (proposals : x_y_coord list) : x_y_coord list =
+    let adjusted = List.map2_exn proposals elves ~f:(
+      fun (x1, y1) (x0, y0) ->
         (* check how many elves are going to end up in that place *)
         let cnt = List.count proposals ~f:(fun (xp, yp) -> xp = x1 && yp = y1) in
         (* if more than 1 (because 1 is current one) then stay on the same place *)
         if cnt > 1 then (x0, y0) else (x1, y1)
     )
-  ) 
+    in
+    if List.equal (fun (x1, y1) (x2, y2) -> x1=x2 && y1=y2) adjusted proposals then adjusted
+    else place_elves adjusted
+  in
+  place_elves proposals
 
 let play_n_rounds (num: int) (elves: x_y_coord list) : x_y_coord list =
   let initial_options = [North ; South ; West ; East] in
   let rec iter (n: int) (elves: x_y_coord list) (options: direction list) : x_y_coord list =
-    if n = 0 then 
-      elves 
+    if n = 0 then
+      elves
     else
       let new_elves = round elves options in
-      let new_options = List.split_n options 3 |> fun (l1, l2) -> List.append l2 l1 in
-      Stdio.printf "Round %d:\n" (num - n + 1);
+      let new_options = List.split_n options 1 |> fun (l1, l2) -> List.append l2 l1 in
+      (*
+      Stdio.printf "Round %3d:\n" (num - n + 1);
       print_elves_on_map new_elves;
+      *)
       iter (n - 1) new_elves new_options
   in
   iter num elves initial_options
+
+let play_until_win (elves: x_y_coord list) : int =
+  let initial_options = [North ; South ; West ; East] in
+  let rec iter (n: int) (elves: x_y_coord list) (options: direction list) : int =
+    let new_elves = round elves options in
+    let new_options = List.split_n options 1 |> fun (l1, l2) -> List.append l2 l1 in
+    (*
+    Stdio.printf "Round %3d:\n" n;
+    print_elves_on_map new_elves;
+    *)
+    if List.equal (fun (x1, y1) (x2, y2) -> x1=x2 && y1=y2) elves new_elves then
+      n
+    else
+      iter (n + 1) new_elves new_options
+  in
+  iter 1 elves initial_options
+
 
 let area (elves: x_y_coord list) : int =
   let ((min_x, min_y), (max_x, max_y)) = area_boundaries elves in
@@ -119,7 +149,7 @@ let area (elves: x_y_coord list) : int =
 
 
 (* Solution for part 1 *)
-let part1 (Input elves : input) : answer = 
+let part1 (Input elves : input) : answer =
   let count_elves = List.length elves in
   let new_elves = play_n_rounds 10 elves in
   let area_size = area new_elves in
@@ -127,4 +157,5 @@ let part1 (Input elves : input) : answer =
 
 
 (* Solution for part 2 *)
-let part2 (Input _ : input) : answer = Unknown
+let part2 (Input elves : input) : answer =
+  Answer (play_until_win elves)
