@@ -20,8 +20,9 @@ module D19 = Aoc2022_ocaml.Day_19
 module D20 = Aoc2022_ocaml.Day_20
 module D21 = Aoc2022_ocaml.Day_21
 module D22 = Aoc2022_ocaml.Day_22
+module D23 = Aoc2022_ocaml.Day_23
 
-module Today = D22
+module Today = D23
 
 (* this main function reads sandard input with puzzle data from file and returns standard output with answer *)
 let () =
