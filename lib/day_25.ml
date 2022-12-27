@@ -79,7 +79,7 @@ let encode (decimal: int) : string =
 
 
 (* Solution for part 1 *)
-let part1 (Input snafu_numbers : input) : answer =
+let solve_part1 (Input snafu_numbers : input) : answer =
   snafu_numbers
   |> List.map ~f:decode
   |> List.fold ~init:0 ~f:(+)
@@ -88,4 +88,13 @@ let part1 (Input snafu_numbers : input) : answer =
 
 
 (* Solution for part 2 *)
-let part2 (Input _ : input) : answer = Unknown
+let solve_part2 (Input _ : input) : answer = Unknown
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

@@ -68,12 +68,12 @@ let your_shape (opp:shape) (res: outcome) : shape =
     | (Paper, Loss) | (Scissors, Win) | (Rock, Draw) -> Rock
     | _ -> Paper
 
-let part1 (Input (i, _)) : answer = i
+let solve_part1 (Input (i, _)) : answer = i
   |> List.map ~f:(fun ({opp; you}:strategy1) -> round_score opp you)
   |> List.fold ~init:0 ~f:(+)
   |> (fun x -> Answer x)
 
-let part2 (Input (_, i)) : answer = i
+let solve_part2 (Input (_, i)) : answer = i
   |> List.map ~f:(fun ({opp; res}:strategy2) -> round_score opp (your_shape opp res))
   |> List.fold ~init:0 ~f:(+)
   |> (fun x -> Answer x)
@@ -81,3 +81,12 @@ let part2 (Input (_, i)) : answer = i
 let answer_to_text = function
 | Answer x -> Int.to_string x
 | Unknown  -> "Solution not yet implemented"
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

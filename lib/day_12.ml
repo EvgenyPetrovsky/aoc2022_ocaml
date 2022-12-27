@@ -4,8 +4,8 @@ exception Not_implemented
 
 type elevation = Start of int | End of int | Elevation of int
 type map = { heigth: int ; width: int ; elevations: elevation array }
-type rules = { 
-  map : map; 
+type rules = {
+  map : map;
   if_move_is_valid : (elevation -> elevation -> bool) ; (*function that checks if new move in path is valid*)
   if_goal_is_reached : (elevation -> bool) ; (*function that checks of move leads to goal*)
   begin_idx : int (*beginning point on the map*)
@@ -129,14 +129,14 @@ let discover_shortest_paths ({map ; if_goal_is_reached ; begin_idx ; _} as rules
 
 
 (* Solution for part 1 *)
-let part1 (Input ({width ; heigth ; elevations} as map): input) : answer =
-  let if_move_is_valid : (elevation -> elevation -> bool) = 
-    fun e1 e2 -> 
+let solve_part1 (Input ({width ; heigth ; elevations} as map): input) : answer =
+  let if_move_is_valid : (elevation -> elevation -> bool) =
+    fun e1 e2 ->
       match e1 with
       | End _ -> false
-      | Start v1 | Elevation v1 -> 
-        match e2 with 
-        | Start _ -> false 
+      | Start v1 | Elevation v1 ->
+        match e2 with
+        | Start _ -> false
         | End v2 | Elevation v2 -> v2 - v1 < 2
   in
   let if_goal_is_reached : (elevation -> bool) =
@@ -152,13 +152,13 @@ let part1 (Input ({width ; heigth ; elevations} as map): input) : answer =
 
 
 (* Solution for part 2 *)
-let part2 (Input ({width ; heigth ; elevations} as map) : input) : answer =
-let if_move_is_valid : (elevation -> elevation -> bool) = 
+let solve_part2 (Input ({width ; heigth ; elevations} as map) : input) : answer =
+let if_move_is_valid : (elevation -> elevation -> bool) =
   fun e2 e1 ->
     match e2 with
     | Elevation 0 | Start _ -> false
-    | End v2 | Elevation v2 -> 
-      match e1 with 
+    | End v2 | Elevation v2 ->
+      match e1 with
       | End _ -> false
       | Start v1 | Elevation v1 -> v2 - v1 < 2
 in
@@ -172,3 +172,12 @@ paths
 |> List.map ~f:(fun (Path x) -> List.length x)
 |> List.fold ~init:(width * heigth) ~f:min
 |> (fun x -> Answer (x - 1))
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

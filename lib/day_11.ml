@@ -163,7 +163,7 @@ let play_round (monkeys : monkey list) (relief_factor : int) : (monkey list) =
 
 
 (* Solution for part 1 *)
-let part1 (Input i : input) : answer =
+let solve_part1 (Input i : input) : answer =
   List.init 20 ~f:(fun x -> x + 1)
   |> List.fold ~init:i ~f:(fun z n -> let r = play_round z 3 in debug_round n r; r)
   |> List.map ~f:(fun m -> m.inspected)
@@ -174,7 +174,7 @@ let part1 (Input i : input) : answer =
 
 
 (* Solution for part 2 *)
-let part2 (Input i : input) : answer =
+let solve_part2 (Input i : input) : answer =
 List.init 10000 ~f:(fun x -> x + 1)
 |> List.fold ~init:i ~f:(
   fun z n ->
@@ -190,3 +190,12 @@ List.init 10000 ~f:(fun x -> x + 1)
 let answer_to_text = function
   | Answer x -> Int.to_string x
   | Unknown  -> "Solution not yet implemented"
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

@@ -18,7 +18,7 @@ let text_to_input (t: string) :input = t
   |> (fun x -> Input x)
 
 (* Solution for part 1 *)
-let part1 (Input i : input) : answer = i
+let solve_part1 (Input i : input) : answer = i
   (* Sum elements of nested lists *)
   |> List.map ~f:(List.fold ~init:0 ~f:((+)))
   (* select biggest number *)
@@ -27,7 +27,7 @@ let part1 (Input i : input) : answer = i
   |> (fun x -> match x with | None -> Answer 0 | Some n -> Answer n)
 
 (* Solution for part 2 *)
-let part2 (Input i : input) : answer = i
+let solve_part2 (Input i : input) : answer = i
   (* Sum elements of nested lists *)
   |> List.map ~f:(List.fold ~init:0 ~f:(+))
   (* sort list descending *)
@@ -42,3 +42,12 @@ let part2 (Input i : input) : answer = i
 let answer_to_text = function
   | Answer x -> Int.to_string x
   | Unknown  -> "Solution not yet implemented"
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

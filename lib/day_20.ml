@@ -61,7 +61,7 @@ let mix_array ~(pointer: int) ~(shift_by: int) ~(pointers: int array) : int arra
   pointers
 
 (* Solution for part 1 *)
-let part1 (Input numbers : input) : answer =
+let solve_part1 (Input numbers : input) : answer =
   let len = Array.length numbers in
   let pointers = Array.init len ~f:(fun i -> i) in
   let pointers = Array.foldi numbers ~init:pointers ~f:(fun i pointers number ->
@@ -76,7 +76,7 @@ let part1 (Input numbers : input) : answer =
 
 
 (* Solution for part 2 *)
-let part2 (Input numbers : input) : answer =
+let solve_part2 (Input numbers : input) : answer =
   let len = Array.length numbers in
   let decription_key = 811589153 in
   let numbers = Array.map numbers ~f:(fun x -> x * decription_key) in
@@ -91,3 +91,12 @@ let part2 (Input numbers : input) : answer =
   |> List.map ~f:(fun x -> x + idx_0)
   |> List.fold ~init:0 ~f:(fun z x -> z + new_order.(x % len))
   |> (fun x -> Answer x)
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

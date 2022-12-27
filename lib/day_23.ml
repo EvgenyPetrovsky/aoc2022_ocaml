@@ -149,7 +149,7 @@ let area (elves: x_y_coord list) : int =
 
 
 (* Solution for part 1 *)
-let part1 (Input elves : input) : answer =
+let solve_part1 (Input elves : input) : answer =
   let count_elves = List.length elves in
   let new_elves = play_n_rounds 10 elves in
   let area_size = area new_elves in
@@ -157,5 +157,14 @@ let part1 (Input elves : input) : answer =
 
 
 (* Solution for part 2 *)
-let part2 (Input elves : input) : answer =
+let solve_part2 (Input elves : input) : answer =
   Answer (play_until_win elves)
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

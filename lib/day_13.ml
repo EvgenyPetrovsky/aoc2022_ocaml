@@ -77,7 +77,7 @@ let rec p_compare (left: packet) (right: packet) : int =
   | (PNul, PNul) -> 0
 
 (* Solution for part 1 *)
-let part1 (Input i : input) : answer =
+let solve_part1 (Input i : input) : answer =
   i
   |> List.map ~f:(fun {left ; right} -> p_compare left right)
   |> List.filter_mapi ~f:(fun i x -> match x with | -1 -> Some (i + 1) | _ -> None)
@@ -86,7 +86,7 @@ let part1 (Input i : input) : answer =
 
 
 (* Solution for part 2 *)
-let part2 (Input i : input) : answer =
+let solve_part2 (Input i : input) : answer =
   let dp2 = PLst (PLst (PInt (2, PNul), PNul), PNul) in
   let dp6 = PLst (PLst (PInt (6, PNul), PNul), PNul) in
   let incl_dp = {left = dp2 ; right = dp6} :: i in
@@ -97,3 +97,10 @@ let part2 (Input i : input) : answer =
   |> List.fold ~init:1 ~f:( * )
   |> (fun x -> Answer x)
 
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

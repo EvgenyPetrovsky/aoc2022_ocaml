@@ -73,14 +73,14 @@ let move_crates (stacks: stack list) (proc: proc) (model: crane_model) : (stack 
   Array.to_list a
 
 (* Solution for part 1 *)
-let part1 (Input { stacks ; procs } : input) : answer =
+let solve_part1 (Input { stacks ; procs } : input) : answer =
   procs
   |> List.fold ~init:stacks ~f:(fun z x -> move_crates z x CM9000)
   |> List.filter_map ~f:List.hd
   |> (fun x -> Answer x)
 
 (* Solution for part 1 *)
-let part2 (Input { stacks ; procs } : input) : answer =
+let solve_part2 (Input { stacks ; procs } : input) : answer =
 procs
 |> List.fold ~init:stacks ~f:(fun z x -> move_crates z x CM9001)
 |> List.filter_map ~f:List.hd
@@ -89,3 +89,12 @@ procs
 let answer_to_text = function
   | Answer x -> String.of_char_list x
   | Unknown  -> "Solution not yet implemented"
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

@@ -32,7 +32,7 @@ let overlaps this that =
   this.from_id <= that.to_id && this.to_id >= that.from_id
 
 (* Solution for part 1 *)
-let part1 (Input i : input) : answer =
+let solve_part1 (Input i : input) : answer =
   i
   (* find pairs where one assignment is fully covering another *)
   |> List.filter ~f:(fun (a1, a2) -> fully_covers a1 a2 || fully_covers a2 a1)
@@ -41,7 +41,7 @@ let part1 (Input i : input) : answer =
   |> (fun x -> Answer x)
 
 (* Solution for part 1 *)
-let part2 (Input i : input) : answer =
+let solve_part2 (Input i : input) : answer =
   i
   (* find pairs where one assignment is fully covering another *)
   |> List.filter ~f:(fun (a1, a2) -> overlaps a1 a2)
@@ -52,3 +52,12 @@ let part2 (Input i : input) : answer =
 let answer_to_text = function
   | Answer x -> Int.to_string x
   | Unknown  -> "Solution not yet implemented"
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

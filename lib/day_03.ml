@@ -37,7 +37,7 @@ let item_priority (i:item) : int =
   (prio upper i) + (prio lower i)
 
 (* Solution for part 1 *)
-let part1 (Input i : input) : answer =
+let solve_part1 (Input i : input) : answer =
   i
   |> List.map ~f:(find_item_in_both)
   |> List.map ~f:(item_priority)
@@ -56,7 +56,7 @@ let find_item_in_many_rucksacks (rs: rucksack list) : item =
   | _ -> '0'
 
 (* Solution for part 1 *)
-let part2 (Input i : input) : answer =
+let solve_part2 (Input i : input) : answer =
   i
   |> List.chunks_of ~length:3
   |> List.map ~f:find_item_in_many_rucksacks
@@ -67,3 +67,12 @@ let part2 (Input i : input) : answer =
 let answer_to_text = function
   | Answer x -> Int.to_string x
   | Unknown  -> "Solution not yet implemented"
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

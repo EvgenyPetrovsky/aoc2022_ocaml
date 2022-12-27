@@ -83,7 +83,7 @@ let debug_print_rope (rope: rope) =
 
 
 (* Solution for part 1 *)
-let part1 (Input moves : input) : answer =
+let solve_part1 (Input moves : input) : answer =
   let num_knots = 2 in
   let start = [{knots = List.init num_knots ~f:(fun _ -> (0,0))}] in
   let record_move acc move = (move_rope (List.hd_exn acc) move) :: acc in
@@ -106,7 +106,7 @@ let part1 (Input moves : input) : answer =
 
 
   (* Solution for part 1 *)
-  let part2 (Input moves : input) : answer =
+  let solve_part2 (Input moves : input) : answer =
   let num_knots = 10 in
   let start = [{knots = List.init num_knots ~f:(fun _ -> (0,0))}] in
   let record_move acc move = (move_rope (List.hd_exn acc) move) :: acc in
@@ -131,3 +131,12 @@ let part1 (Input moves : input) : answer =
 let answer_to_text = function
   | Answer x -> Int.to_string x
   | Unknown  -> "Solution not yet implemented"
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

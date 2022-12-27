@@ -154,7 +154,7 @@ let play ~(num: int) (rock_sequence: rock_coords list) (jet_sequence: direction 
   let r_h = rock_heigth r in
   iter num r (List.tl_exn rock_sequence) (jet_sequence) (provision_empty_levels ~number:(r_h + 3) chamber)
 (* Solution for part 1 *)
-let part1 (Input jet_sequence : input) : answer =
+let solve_part1 (Input jet_sequence : input) : answer =
   let n = 2022 in
   let rock_sequence = parse_rock_shape_coords rock_shapes in
   let chamber : chamber = [||] in
@@ -165,7 +165,7 @@ let part1 (Input jet_sequence : input) : answer =
 
 
 (* Solution for part 2 *)
-let part2 (Input jet_sequence : input) : answer =
+let solve_part2 (Input jet_sequence : input) : answer =
   (* trying to sneak in hope there is some stable pattern that repeats *)
   let n = 1_000_000_000_000 in
   let rock_sequence = parse_rock_shape_coords rock_shapes in
@@ -181,3 +181,12 @@ let part2 (Input jet_sequence : input) : answer =
     Array.count ~f:(fun a -> Array.exists a ~f:(function | Rock -> true | _ -> false))
   in
   Answer (n_div * tower_h_in_period + tower_h_in_remainder)
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

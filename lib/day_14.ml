@@ -105,7 +105,7 @@ let fill_cave_with_sand (cave: cave_map) (start_idx: int) : cave_map =
   iter cave
 
 (* Solution for part 1 *)
-let part1 (Input i : input) : answer =
+let solve_part1 (Input i : input) : answer =
   let start_idx = 500 in
   let cave = fill_cave_with_sand i start_idx in
   (*debug_print_cave cave;*)
@@ -116,7 +116,7 @@ let part1 (Input i : input) : answer =
 
 
 (* Solution for part 2 *)
-let part2 (Input i : input) : answer =
+let solve_part2 (Input i : input) : answer =
   let start_idx = 500 in
   let max_y_of_rock =
     i
@@ -133,3 +133,12 @@ let part2 (Input i : input) : answer =
   |> Array.filter ~f:(function | Sand -> true | _ -> false)
   |> Array.length
   |> (fun x -> Answer x)
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

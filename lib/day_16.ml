@@ -3,7 +3,7 @@ open Base
 type t = Empty
 exception Not_implemented
 type valve = {
-  name: string ; 
+  name: string ;
   flow_rate: int ;
   leads_to_valves: string list ;
   }
@@ -25,15 +25,15 @@ let answer_to_text = function
 let parse_one_line (line:string) : valve =
   let parts = String.split line ~on:' ' in
   let name = List.nth_exn parts 1 in
-  let flow_rate = 
-    List.nth_exn parts 4 
-    |> String.rsplit2_exn ~on:'=' |> snd 
+  let flow_rate =
+    List.nth_exn parts 4
+    |> String.rsplit2_exn ~on:'=' |> snd
     |> String.chop_suffix_if_exists ~suffix:";"
     |> Int.of_string
   in
-  let leads_to_valves = 
-    List.drop parts 9 
-    |> List.map ~f:(String.chop_suffix_if_exists ~suffix:",") 
+  let leads_to_valves =
+    List.drop parts 9
+    |> List.map ~f:(String.chop_suffix_if_exists ~suffix:",")
   in
   { name ; flow_rate ; leads_to_valves }
 
@@ -48,8 +48,17 @@ let text_to_input (t: string) :input =
 
 
 (* Solution for part 1 *)
-let part1 (Input _ : input) : answer = Unknown
+let solve_part1 (Input _ : input) : answer = Unknown
 
 
 (* Solution for part 2 *)
-let part2 (Input _ : input) : answer = Unknown
+let solve_part2 (Input _ : input) : answer = Unknown
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

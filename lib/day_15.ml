@@ -110,7 +110,7 @@ let diff_range r1 r2 =
   else None
 
 (* Solution for part 1 *)
-let part1 (Input sensors : input) : answer =
+let solve_part1 (Input sensors : input) : answer =
   let y = 2000000 in
   (*let y = 10 in*)
   let num_beacons_on_y = sensors
@@ -147,7 +147,7 @@ let brute_force_solution (sensors: sensor list) : int =
   let rec iter (x:int) (y:int): int =
     if (y % 100_000 = 0 && x = 0) then Stdio.printf "processing y = %d\n" y;
     if y > max_y then 0
-    else if x > max_x then iter min_x (y + 1) 
+    else if x > max_x then iter min_x (y + 1)
     else
       let diff = List.fold sensors_distances ~init:(-1) ~f:(
         fun z ( position , dist ) ->
@@ -158,5 +158,14 @@ let brute_force_solution (sensors: sensor list) : int =
       else iter (x + (max diff 1)) (y)
   in
   iter 0 0
-let part2 (Input sensors : input) : answer =
+let solve_part2 (Input sensors : input) : answer =
   Answer (brute_force_solution sensors)
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

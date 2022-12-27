@@ -81,7 +81,7 @@ let discover_outside_units (min_x, min_y, min_z) (max_x, max_y, max_z) (lava_uni
   iter [] (0,0,0)
 
 (* Solution for part 1 *)
-let part1 (Input units : input) : answer =
+let solve_part1 (Input units : input) : answer =
   let init_droplet = { surface = 0 ; units = [] } in
   let final_droplet = List.fold units ~init:init_droplet ~f:grow_droplet in
   Answer (final_droplet.surface)
@@ -91,7 +91,7 @@ let part1 (Input units : input) : answer =
 (* approach
    - to simulate droplet out of units surrounding it within its boundaries
    - snubstract well known outside area of "cubic surface from total area "*)
-let part2 (Input units : input) : answer =
+let solve_part2 (Input units : input) : answer =
   let get_max (extract: lava_unit -> int) : int =
     units |> List.map ~f:extract |> List.max_elt ~compare:Int.compare |> function | Some x -> x | _ -> raise Invalid_case
   in
@@ -127,3 +127,12 @@ let part2 (Input units : input) : answer =
   Stdio.printf "Cube outside and inside surface %d\n" outside_units_total_surface;
   *)
   Answer(outside_units_total_surface - outside_cube_surface)
+
+
+  (* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

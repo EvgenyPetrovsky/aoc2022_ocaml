@@ -140,11 +140,20 @@ let optimize (expr: expression) : int =
   iter delta par0 res0 0
 
 (* Solution for part 1 *)
-let part1 (Input expr : input) : answer =
+let solve_part1 (Input expr : input) : answer =
   Answer (evaluate expr)
 
 
 (* Solution for part 2 *)
-let part2 (Input expr : input) : answer =
+let solve_part2 (Input expr : input) : answer =
   let new_expr =  redefine_root expr in
   Answer (optimize new_expr)
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text

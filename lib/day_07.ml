@@ -99,7 +99,7 @@ let rec get_list_of_dirs (tree:fs_item list) : ((string * int) list) =
     | _ -> []
 
 (* Solution for part 1 *)
-let part1 (Input i : input) : answer =
+let solve_part1 (Input i : input) : answer =
   let dirs = get_list_of_dirs [calculate_dir_sizes i] in
   dirs
   |> List.filter_map ~f:(fun(_, size) -> if size > 100_000 then None else Some size)
@@ -107,7 +107,7 @@ let part1 (Input i : input) : answer =
   |> (fun x -> Answer x)
 
 (* Solution for part 1 *)
-let part2 (Input i : input) : answer =
+let solve_part2 (Input i : input) : answer =
   let total_space = 70_000_000 in
   let used_space = calc_one_dir_size i in
   let required_space = 30_000_000 in
@@ -121,3 +121,12 @@ let part2 (Input i : input) : answer =
 let answer_to_text = function
   | Answer x -> Int.to_string x
   | Unknown  -> "Solution not yet implemented"
+
+
+(* end-to-end functions *)
+
+let part1 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part1 |> answer_to_text
+
+let part2 (input_text: string) : (string) =
+  input_text |> text_to_input |> solve_part2 |> answer_to_text
