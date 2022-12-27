@@ -1,12 +1,17 @@
+let usage_msg = {|aoc2022_ocaml -day <day_number> [-input <puzzle_input_file>]
 
-let usage_msg = "aoc2022_ocaml -day <day_number> [-input <puzzle_input_file>]"
+example 1: aoc2022_ocaml -day 2 -file ./input/day22
+example 2: cat ./input/day22 | aoc2022_ocaml -day 2
+
+Command line utility to execute calculations of Advent of Code 2022 puzzles. Advent of Code puzzles are available by URL: https://adventofcode.com/2022.
+|}
 let day = ref (-1)
 let input_file = ref ""
 let anon_fun filename = input_file := filename
 let speclist =
   [
     ("-day", Arg.Set_int day, "Day number to solve");
-    ("-file", Arg.Set_string input_file, "Puzzle input");
+    ("-file", Arg.Set_string input_file, "Puzzle input. Can be skipped if stdin is given as an input");
   ]
 
 exception Invalid_day of string
