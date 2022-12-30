@@ -4,13 +4,19 @@ type t = Empty
 exception Not_implemented
 
 type input = Input of t
-type answer = Answer of int | Unknown
+type answer = 
+  | Unknown
+  | AnswerNumeric of int 
+  | AnswerTextual of string
 
 
-(* Answer print function *)
+
+(** [answer_to_text answer] coverts [answer] into textual form 
+    that can be printed out. Providing default text when [answer] is Unknown *)
 let answer_to_text = function
-  | Answer x -> Int.to_string x
   | Unknown  -> "Solution not yet implemented"
+  | AnswerNumeric x -> Int.to_string x
+  | AnswerTextual x -> x
 
 
   (* Parse input functions *)
