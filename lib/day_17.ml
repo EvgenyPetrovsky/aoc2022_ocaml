@@ -165,22 +165,33 @@ let solve_part1 (Input jet_sequence : input) : answer =
 
 
 (* Solution for part 2 *)
+(* approach: take relatively big number of iterations, 
+   do them by fixing the heigth of stack after every iteration
+   translate heigths into deltas 
+   use Floyd's tortoise and hare algorigthm to detect cycle 
+   the resulting heigth of stack will be heighs at start of cycles + number of 
+   cycles up to number n = 1_000_000_000_000 *)
 let solve_part2 (Input jet_sequence : input) : answer =
   (* trying to sneak in hope there is some stable pattern that repeats *)
   let n = 1_000_000_000_000 in
   let rock_sequence = parse_rock_shape_coords rock_shapes in
-  let period = (List.length jet_sequence) * (List.length rock_sequence) * 4 in
-  let n_div = n / period in
-  let n_rem = n % period in
-  let tower_h_in_period =
-    play ~num:period rock_sequence jet_sequence [||] |>
+  let period = (List.length jet_sequence) * (List.length rock_sequence) * 1 in
+  let n_div = (n / period) - 4 in
+  let n_rem = (n % period) + (4 * period) in
+  (* define initial offset for the cave: 
+     reminder division of n by period 
+     plus period, in case reminder is zero *)
+  let tower_h_0 =
+    play ~num:(n_rem + 0 * period) rock_sequence jet_sequence [||] |>
     Array.count ~f:(fun a -> Array.exists a ~f:(function | Rock -> true | _ -> false))
   in
-  let tower_h_in_remainder =
-    play ~num:n_rem rock_sequence jet_sequence [||] |>
+  (* measure the heigth of tower after initial offset + 1 full period
+     in hope that it will give us delta growth for every period *)
+  let tower_h_1 =
+    play ~num:(n_rem + 1 * period) rock_sequence jet_sequence [||] |>
     Array.count ~f:(fun a -> Array.exists a ~f:(function | Rock -> true | _ -> false))
   in
-  Answer (n_div * tower_h_in_period + tower_h_in_remainder)
+  Answer (tower_h_0 + (n_div - 1) * (tower_h_1 - tower_h_0))
 
 
 (* end-to-end functions *)

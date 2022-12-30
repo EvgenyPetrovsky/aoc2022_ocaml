@@ -12,12 +12,6 @@ module type Solution = sig
   val part2 : string -> string
 end
 
-
-module Make = sig
-  val part1 : string -> string
-  val part2 : string -> string
-end
-
 module Make (Day: Solvable) :
   Solution =
 struct
