@@ -164,12 +164,40 @@ let solve_part1 (Input jet_sequence : input) : answer =
   |> (fun x -> Answer x)
 
 
+(* Floyd's tortoise and hare algorigthm to detect cycle *)
+let find_cycle (seq: int list) : (int * int) option =
+  let seq = Array.of_list seq in
+  let len = Array.length seq in
+  let rec find_v (tortoise: int) (hare_ptr: int) : int option =
+    if hare_ptr >= len then None
+    else if seq.(hare_ptr) = seq.(tortoise) then Some tortoise
+    else find_v (tortoise + 1) (hare_ptr + 2)
+  in
+  let rec find_mu (v: int) (mu: int) : int option =
+    if v + mu >= len then None
+    else if seq.(mu) = seq.(v + mu) then Some mu
+    else find_mu v (mu + 1)
+  in
+  let rec find_lambda (mu: int) (lambda: int) : int option =
+    if (mu + lambda) > len then None
+    else if seq.(mu) = seq.(mu + lambda) then Some lambda
+    else find_lambda mu (lambda + 1)
+  in
+  let v = find_v 1 2 in
+  let open Option in
+  let mu = v >>= fun v -> find_mu v 0 in
+  let lambda = mu >>= fun mu -> find_lambda mu 1 in
+  match mu, lambda with
+  | Some mu, Some lambda -> Some (mu, lambda)
+  | _ -> None
+
+
 (* Solution for part 2 *)
-(* approach: take relatively big number of iterations, 
+(* approach: take relatively big number of iterations,
    do them by fixing the heigth of stack after every iteration
-   translate heigths into deltas 
-   use Floyd's tortoise and hare algorigthm to detect cycle 
-   the resulting heigth of stack will be heighs at start of cycles + number of 
+   translate heigths into deltas
+   use Floyd's tortoise and hare algorigthm to detect cycle
+   the resulting heigth of stack will be heighs at start of cycles + number of
    cycles up to number n = 1_000_000_000_000 *)
 let solve_part2 (Input jet_sequence : input) : answer =
   (* trying to sneak in hope there is some stable pattern that repeats *)
@@ -178,8 +206,8 @@ let solve_part2 (Input jet_sequence : input) : answer =
   let period = (List.length jet_sequence) * (List.length rock_sequence) * 1 in
   let n_div = (n / period) - 4 in
   let n_rem = (n % period) + (4 * period) in
-  (* define initial offset for the cave: 
-     reminder division of n by period 
+  (* define initial offset for the cave:
+     reminder division of n by period
      plus period, in case reminder is zero *)
   let tower_h_0 =
     play ~num:(n_rem + 0 * period) rock_sequence jet_sequence [||] |>
